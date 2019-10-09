@@ -1,4 +1,4 @@
-package com.broodcamp;
+package com.terawarehouse;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
