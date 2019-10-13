@@ -58,7 +58,7 @@
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-				<groupId>com.broodcamp</groupId>
+				<groupId>com.terawarehouse</groupId>
 				<artifactId>terawarehouse-bom</artifactId>
 				<version>0.0.1-SNAPSHOT</version>
 				<type>pom</type>
