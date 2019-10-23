@@ -9,7 +9,7 @@
 		<version>2.2.0.BUILD-SNAPSHOT</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.broodcamp</groupId>
+	<groupId>com.terawarehouse</groupId>
 	<artifactId>terawarehouse-inventory</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>terawarehouse-inventory</name>
@@ -103,6 +103,11 @@
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.broodcamp</groupId>
+			<artifactId>broodcamp-api</artifactId>
 		</dependency>
 		
 		<dependency>
