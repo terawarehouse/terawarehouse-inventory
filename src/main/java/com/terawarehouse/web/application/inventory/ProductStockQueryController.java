@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RestController;
  * @author Edward P. Legaspi | czetsuya@gmail.com
  */
 @RestController
-@RequestMapping(path = "/categories", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(path = "/stocks", produces = MediaType.APPLICATION_JSON_VALUE)
 @Validated
-public class InventoryController {
+public class ProductStockQueryController {
 
 }
