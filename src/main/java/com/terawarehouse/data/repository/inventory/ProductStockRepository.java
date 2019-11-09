@@ -17,7 +17,10 @@
  */
 package com.terawarehouse.data.repository.inventory;
 
+import java.util.Optional;
 import java.util.UUID;
+
+import javax.validation.constraints.NotNull;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -29,5 +32,9 @@ import com.terawarehouse.data.entity.inventory.ProductStock;
  */
 @Repository
 public interface ProductStockRepository extends JpaRepository<ProductStock, UUID> {
+
+    Optional<ProductStock> findByWarrantyCardNo(@NotNull String warrantyCardNo);
+
+    Optional<ProductStock> findBySerialNo(@NotNull String serialNo);
 
 }

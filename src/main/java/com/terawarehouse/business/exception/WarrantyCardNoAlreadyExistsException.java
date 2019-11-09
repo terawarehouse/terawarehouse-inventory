@@ -15,37 +15,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package com.terawarehouse.business.domain.inventory;
-
-import java.util.UUID;
-
-import javax.validation.constraints.NotNull;
-
-import com.broodcamp.data.dto.BaseEntityDto;
-
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+package com.terawarehouse.business.exception;
 
 /**
  * @author Edward P. Legaspi | czetsuya@gmail.com
+ * 
+ * @since 0.0.1
+ * @version 0.0.1
  */
-@Data
-@EqualsAndHashCode(callSuper = false)
-@NoArgsConstructor
-public class ProductStockDto extends BaseEntityDto {
+public class WarrantyCardNoAlreadyExistsException extends RuntimeException {
 
-    @NotNull
-    private UUID productId;
-
-    @NotNull
-    private UUID tradingBranchId;
-
-    @NotNull
-    private UUID dealerId;
-
-    @NotNull
-    private String serialNo;
-
-    private String warrantyCardNo;
+    private static final long serialVersionUID = -4822079871532847754L;
+    
 }

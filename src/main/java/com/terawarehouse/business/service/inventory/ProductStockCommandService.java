@@ -47,8 +47,4 @@ public class ProductStockCommandService {
             });
         }
     }
-    
-    public void sold(List<ProductStock> soldProducts ) {
-        
-    }
 }

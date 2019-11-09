@@ -24,12 +24,13 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.Index;
-import javax.persistence.PostLoad;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 
@@ -38,59 +39,44 @@ import com.broodcamp.data.entity.BaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 /**
  * @author Edward P. Legaspi | czetsuya@gmail.com
+ * 
+ * @since 0.0.1
+ * @version 0.0.1
  */
 @Entity
-@Table(name = "inventory_stock" //
-        , uniqueConstraints = @UniqueConstraint(columnNames = { "product_id", "trading_branch_id", "serial_no" }) //
-        , indexes = { @Index(columnList = "serial_no", unique = false), @Index(columnList = "warranty_card_no", unique = false) } //
+@Table(name = "inventory_stock_history" //
+        , uniqueConstraints = @UniqueConstraint(columnNames = { "product_stock_id", "event_date" }) //
+        , indexes = { @Index(columnList = "product_stock_id", unique = false), @Index(columnList = "event_date", unique = false) } //
 )
 @Data
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
-@ToString(callSuper = true)
-public class ProductStock extends BaseEntity {
+public class ProductStockHistory extends BaseEntity {
 
-    private static final long serialVersionUID = 7901377279454273062L;
-
-    @NotNull
-    @Column(name = "product_id", columnDefinition = "uuid", updatable = false)
-    private UUID productId;
+    private static final long serialVersionUID = -9104791725371126368L;
 
     @NotNull
-    @Column(name = "trading_branch_id", columnDefinition = "uuid")
-    private UUID tradingBranchId;
-
-    @NotNull
-    @Column(name = "dealer_id", columnDefinition = "uuid")
-    private UUID dealerId;
-
-    @NotNull
-    @Column(name = "serial_no", length = 100, nullable = false, updatable = false)
-    private String serialNo;
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_stock_id", nullable = false)
+    private ProductStock productStock;
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "status")
-    private ProductStockStatusEnum status = ProductStockStatusEnum.CREATED;
-
-    @Column(name = "warranty_card_no", length = 100)
-    private String warrantyCardNo;
+    @Column(name = "action", nullable = false)
+    private ProductStockStatusEnum action;
 
     @NotNull
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "created", nullable = false)
-    private Date created;
+    @Column(name = "event_date", nullable = false)
+    private Date eventDate;
 
-    @Transient
-    private UUID previousTradingBranchId;
+    @Column(name = "source_trading_branch_id", columnDefinition = "uuid")
+    private UUID sourceTradingBranchId;
 
-    @PostLoad
-    public void postLoad() {
-        previousTradingBranchId = tradingBranchId;
-    }
-    
+    @Column(name = "target_trading_branch_id", columnDefinition = "uuid")
+    private UUID targetTradingBranchId;
+
 }

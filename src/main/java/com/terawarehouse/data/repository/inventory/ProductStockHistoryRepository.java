@@ -15,37 +15,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package com.terawarehouse.business.domain.inventory;
+package com.terawarehouse.data.repository.inventory;
 
+import java.util.Optional;
 import java.util.UUID;
 
-import javax.validation.constraints.NotNull;
+import org.springframework.stereotype.Repository;
 
-import com.broodcamp.data.dto.BaseEntityDto;
-
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import com.broodcamp.data.repository.BaseRepository;
+import com.terawarehouse.data.entity.inventory.ProductStock;
+import com.terawarehouse.data.entity.inventory.ProductStockHistory;
 
 /**
  * @author Edward P. Legaspi | czetsuya@gmail.com
+ * 
+ * @since 0.0.1
+ * @version 0.0.1
  */
-@Data
-@EqualsAndHashCode(callSuper = false)
-@NoArgsConstructor
-public class ProductStockDto extends BaseEntityDto {
+@Repository
+public interface ProductStockHistoryRepository extends BaseRepository<ProductStockHistory, UUID> {
 
-    @NotNull
-    private UUID productId;
+    Optional<ProductStockHistory> findByProductStock(ProductStock productStock);
 
-    @NotNull
-    private UUID tradingBranchId;
-
-    @NotNull
-    private UUID dealerId;
-
-    @NotNull
-    private String serialNo;
-
-    private String warrantyCardNo;
 }
