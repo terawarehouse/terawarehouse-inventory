@@ -18,11 +18,11 @@
 package com.terawarehouse.web.application.inventory;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
-import javax.servlet.http.HttpServletResponse;
-
-import org.mapstruct.Context;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -33,10 +33,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.broodcamp.data.mapper.GenericMapper;
+import com.broodcamp.util.StringUtils;
 import com.terawarehouse.business.domain.inventory.ProductStockAddCommandDto;
 import com.terawarehouse.business.domain.inventory.ProductStockDto;
 import com.terawarehouse.business.service.inventory.ProductStockCommandService;
 import com.terawarehouse.data.entity.inventory.ProductStock;
+import com.terawarehouse.web.assembler.inventory.ProductStockResourceAssembler;
 
 /**
  * @author Edward P. Legaspi | czetsuya@gmail.com
@@ -52,13 +54,20 @@ public class ProductStockCommandController {
     @Autowired
     private GenericMapper<ProductStock, ProductStockDto> genericMapper;
 
+    @Autowired
+    private ProductStockResourceAssembler modelAssembler;
+
     @PostMapping
-    public ResponseEntity<?> restock(@RequestBody ProductStockAddCommandDto productStockAddCommand, @Context HttpServletResponse response) {
+    public ResponseEntity<CollectionModel<EntityModel<ProductStockDto>>> restock(@RequestBody ProductStockAddCommandDto productStockAddCommand) {
 
         List<ProductStock> newProductStocks = genericMapper.toModel(productStockAddCommand.getProductStocks());
 
-        productStockCommandService.restock(newProductStocks);
+        List<ProductStock> invalidProductStocks = productStockCommandService.save(newProductStocks);
 
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        boolean isError = invalidProductStocks.stream().anyMatch(e -> !StringUtils.isBlank(e.getErrMessage()));
+
+        List<EntityModel<ProductStockDto>> result = invalidProductStocks.stream().map(e -> modelAssembler.toModel(genericMapper.toDto(e))).collect(Collectors.toList());
+
+        return new ResponseEntity<>(new CollectionModel<>(result), isError ? HttpStatus.CONFLICT : HttpStatus.CREATED);
     }
 }

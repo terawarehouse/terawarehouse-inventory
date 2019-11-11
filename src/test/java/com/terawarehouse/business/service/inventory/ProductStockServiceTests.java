@@ -20,6 +20,8 @@ package com.terawarehouse.business.service.inventory;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -48,6 +50,7 @@ import com.terawarehouse.data.repository.inventory.ProductStockRepository;
 public class ProductStockServiceTests {
 
     private final UUID dealerId = UUID.fromString("072a435c-02aa-11ea-8d71-362b9e155667");
+    private final UUID productId = UUID.fromString("072a45c9-02aa-11ea-8d71-362b9e155667");
     private final UUID productStockId = UUID.fromString("072a45c8-02aa-11ea-8d71-362b9e155667");
     private final UUID tradingBranchId = UUID.fromString("072a4712-02aa-11ea-8d71-362b9e155667");
     private final String serialNoEmpty = "ANDROID-001";
@@ -59,13 +62,13 @@ public class ProductStockServiceTests {
     static class ProductStockServiceImplTestContextConfiguration {
 
         @Bean
-        public ProductStockService productStockService() {
-            return new ProductStockService();
+        public ProductStockCommandService productStockCommandService() {
+            return new ProductStockCommandService();
         }
     }
 
     @Autowired
-    private ProductStockService productStockService;
+    private ProductStockCommandService productStockCommandService;
 
     @MockBean
     private ProductStockRepository productStockRepository;
@@ -76,6 +79,7 @@ public class ProductStockServiceTests {
         ProductStock ps = new ProductStock();
         ps.setDealerId(dealerId);
         ps.setId(productStockId);
+        ps.setProductId(productId);
         ps.setStatus(ProductStockStatusEnum.CREATED);
         ps.setTradingBranchId(tradingBranchId);
         ps.setWarrantyCardNo(warrantyCardNo);
@@ -83,35 +87,57 @@ public class ProductStockServiceTests {
 
         Mockito.when(productStockRepository.save(ps)).thenReturn(ps);
         Mockito.when(productStockRepository.findById(productStockId)).thenReturn(Optional.of(ps));
-        Mockito.when(productStockRepository.findBySerialNo(serialNo)).thenReturn(Optional.of(ps));
-        Mockito.when(productStockRepository.findBySerialNo(serialNoEmpty)).thenReturn(Optional.empty());
-        Mockito.when(productStockRepository.findByWarrantyCardNo(warrantyCardNo)).thenReturn(Optional.of(ps));
-        Mockito.when(productStockRepository.findByWarrantyCardNo(warrantyCardNoEmpty)).thenReturn(Optional.empty());
+        Mockito.when(productStockRepository.findByProductIdAndSerialNo(productId, serialNo)).thenReturn(Optional.of(ps));
+        Mockito.when(productStockRepository.findByProductIdAndSerialNo(productId, serialNoEmpty)).thenReturn(Optional.empty());
+        Mockito.when(productStockRepository.findByProductIdAndWarrantyCardNo(productId, warrantyCardNo)).thenReturn(Optional.of(ps));
+        Mockito.when(productStockRepository.findByProductIdAndWarrantyCardNo(productId, warrantyCardNoEmpty)).thenReturn(Optional.empty());
     }
 
     @Test
     public void whenValidSerialNo_thenProductStockShouldBeFound() {
 
-        ProductStock ps = productStockRepository.findBySerialNo(serialNo).get();
+        ProductStock ps = productStockRepository.findByProductIdAndSerialNo(productId, serialNo).get();
         assertThat(ps.getSerialNo()).isEqualTo(serialNo);
     }
 
     @Test
-    public void whenSaveValidateSerialNo_thenThrowSerialFoundException() {
+    public void whenValidateSerialNo_thenThrowSerialFoundException() {
 
         ProductStock ps = new ProductStock();
+        ps.setProductId(productId);
         ps.setSerialNo(serialNo);
 
-        assertThatThrownBy(() -> productStockService.save(ps)).isInstanceOf(SerialNoAlreadyExistsException.class);
+        assertThatThrownBy(() -> productStockCommandService.validateProductStock(ps)).isInstanceOf(SerialNoAlreadyExistsException.class);
     }
 
     @Test
-    public void whenSaveValidateWarrantyCardNo_thenThrowWarrantyFoundException() {
+    public void whenValidateWarrantyCardNo_thenThrowWarrantyFoundException() {
 
         ProductStock ps = new ProductStock();
+        ps.setProductId(productId);
         ps.setWarrantyCardNo(warrantyCardNo);
 
-        assertThatThrownBy(() -> productStockService.save(ps)).isInstanceOf(WarrantyCardNoAlreadyExistsException.class);
+        assertThatThrownBy(() -> productStockCommandService.validateProductStock(ps)).isInstanceOf(WarrantyCardNoAlreadyExistsException.class);
+    }
+
+    @Test
+    public void whenSaveValidateSerialNo_thenCatchSerialFoundException() {
+
+        ProductStock ps = new ProductStock();
+        ps.setProductId(productId);
+        ps.setSerialNo(serialNo);
+
+        assertThat(productStockCommandService.save(ps).getErrMessage()).contains("PROD-ERR-001");
+    }
+
+    @Test
+    public void whenSaveValidateWarrantyCardNo_thenCatchWarrantyFoundException() {
+
+        ProductStock ps = new ProductStock();
+        ps.setProductId(productId);
+        ps.setWarrantyCardNo(warrantyCardNo);
+
+        assertThat(productStockCommandService.save(ps).getErrMessage()).contains("PROD-ERR-002");
     }
 
     @Test
@@ -120,6 +146,7 @@ public class ProductStockServiceTests {
         ProductStock ps = new ProductStock();
         ps.setDealerId(dealerId);
         ps.setId(productStockId);
+        ps.setProductId(productId);
         ps.setStatus(ProductStockStatusEnum.CREATED);
         ps.setTradingBranchId(tradingBranchId);
         ps.setWarrantyCardNo(warrantyCardNoEmpty);
@@ -127,8 +154,43 @@ public class ProductStockServiceTests {
 
         Mockito.when(productStockRepository.save(ps)).thenReturn(ps);
 
-        ProductStock newProductStock = productStockService.save(ps);
+        ProductStock newProductStock = productStockCommandService.save(ps);
         assertThat(newProductStock.getId()).isEqualTo(productStockId);
+    }
+
+    @Test
+    public void whenSaveList_thenOk() {
+
+        ProductStock ps1 = new ProductStock();
+        ps1.setDealerId(dealerId);
+        ps1.setId(productStockId);
+        ps1.setProductId(productId);
+        ps1.setStatus(ProductStockStatusEnum.CREATED);
+        ps1.setTradingBranchId(tradingBranchId);
+        ps1.setWarrantyCardNo(warrantyCardNoEmpty);
+        ps1.setSerialNo(serialNoEmpty);
+
+        UUID productStockId2 = UUID.randomUUID();
+        ProductStock ps2 = new ProductStock();
+        ps2.setDealerId(dealerId);
+        ps2.setId(productStockId2);
+        ps2.setProductId(productId);
+        ps2.setStatus(ProductStockStatusEnum.CREATED);
+        ps2.setTradingBranchId(tradingBranchId);
+        ps2.setWarrantyCardNo(warrantyCardNoEmpty + "-1");
+        ps2.setSerialNo(serialNoEmpty + "-1");
+
+        Mockito.when(productStockRepository.save(ps1)).thenReturn(ps1);
+        Mockito.when(productStockRepository.save(ps2)).thenReturn(ps2);
+
+        List<ProductStock> productStocks = new ArrayList<>();
+        productStocks.add(ps1);
+        productStocks.add(ps2);
+
+        List<ProductStock> newProductStocks = productStockCommandService.save(productStocks);
+        assertThat(newProductStocks.size()).isEqualTo(2);
+        assertThat(newProductStocks.get(0).getId()).isEqualTo(productStockId);
+        assertThat(newProductStocks.get(1).getId()).isEqualTo(productStockId2);
     }
 
 }

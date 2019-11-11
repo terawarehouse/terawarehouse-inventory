@@ -17,14 +17,20 @@
  */
 package com.terawarehouse.business.service.inventory;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.broodcamp.util.StringUtils;
+import com.terawarehouse.business.exception.SerialNoAlreadyExistsException;
+import com.terawarehouse.business.exception.WarrantyCardNoAlreadyExistsException;
 import com.terawarehouse.data.entity.inventory.ProductStock;
+import com.terawarehouse.data.entity.inventory.ProductStockHistory;
 import com.terawarehouse.data.entity.inventory.ProductStockStatusEnum;
+import com.terawarehouse.data.repository.inventory.ProductStockHistoryRepository;
 import com.terawarehouse.data.repository.inventory.ProductStockRepository;
 
 /**
@@ -36,15 +42,68 @@ public class ProductStockCommandService {
     @Autowired
     private ProductStockRepository productStockRepository;
 
-    public void restock(List<ProductStock> newProducts) {
+    @Autowired
+    private ProductStockHistoryRepository productStockHistoryRepository;
 
-        Date now = new Date();
-        if (newProducts != null && !newProducts.isEmpty()) {
-            newProducts.forEach(e -> {
-                e.setCreated(now);
-                e.setStatus(ProductStockStatusEnum.CREATED);
-                productStockRepository.save(e);
-            });
+    /**
+     * Validates an instance of {@linkplain ProductStock} before saving.
+     * 
+     * @param ps {@link ProductStock} instance
+     * @throws SerialNoAlreadyExistsException       serialNo is already save in the
+     *                                              database
+     * @throws WarrantyCardNoAlreadyExistsException warrantyCardNo is already save
+     *                                              in the database
+     */
+    public void validateProductStock(ProductStock ps) throws SerialNoAlreadyExistsException, WarrantyCardNoAlreadyExistsException {
+
+        if (productStockRepository.findByProductIdAndSerialNo(ps.getProductId(), ps.getSerialNo()).isPresent()) {
+            throw new SerialNoAlreadyExistsException(ps.getProductId(), ps.getSerialNo());
         }
+
+        if (!StringUtils.isBlank(ps.getWarrantyCardNo()) && productStockRepository.findByProductIdAndWarrantyCardNo(ps.getProductId(), ps.getWarrantyCardNo()).isPresent()) {
+            throw new WarrantyCardNoAlreadyExistsException(ps.getProductId(), ps.getWarrantyCardNo());
+        }
+    }
+
+    public ProductStock save(ProductStock e) {
+
+        try {
+            validateProductStock(e);
+
+            e.setCreated(new Date());
+            if (e.isTransient()) {
+                e.setStatus(ProductStockStatusEnum.CREATED);
+            }
+
+            if (e.getTradingBranchId() != null && e.getPreviousTradingBranchId() != null && !e.getTradingBranchId().equals(e.getPreviousTradingBranchId())) {
+                // log product stock movement history
+                ProductStockHistory productStockHistory = new ProductStockHistory();
+                productStockHistory.setAction(ProductStockStatusEnum.TRANSFERRED);
+                productStockHistory.setEventDate(new Date());
+                productStockHistory.setProductStock(e);
+                productStockHistory.setSourceTradingBranchId(e.getPreviousTradingBranchId());
+                productStockHistory.setTargetTradingBranchId(e.getTradingBranchId());
+                productStockHistoryRepository.save(productStockHistory);
+            }
+
+            return productStockRepository.save(e);
+
+        } catch (SerialNoAlreadyExistsException | WarrantyCardNoAlreadyExistsException e1) {
+            e.setErrMessage(e1.getMessage());
+            return e;
+        }
+    }
+
+    public List<ProductStock> save(List<ProductStock> newProducts) {
+
+        List<ProductStock> result = new ArrayList<>();
+
+        if (newProducts != null && !newProducts.isEmpty()) {
+            for (ProductStock e : newProducts) {
+                result.add(save(e));
+            }
+        }
+
+        return result;
     }
 }

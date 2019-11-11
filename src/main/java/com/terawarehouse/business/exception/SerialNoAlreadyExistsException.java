@@ -17,14 +17,30 @@
  */
 package com.terawarehouse.business.exception;
 
+import java.util.UUID;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
+import com.broodcamp.business.exception.BusinessNonRuntimeException;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
 /**
  * @author Edward P. Legaspi | czetsuya@gmail.com
  * 
- * @since
- * @version
+ * @since 0.0.1
+ * @version 0.0.1
  */
-public class SerialNoAlreadyExistsException extends RuntimeException {
+@Data
+@EqualsAndHashCode(callSuper = false)
+@ResponseStatus(value = HttpStatus.CONFLICT)
+public class SerialNoAlreadyExistsException extends BusinessNonRuntimeException {
 
     private static final long serialVersionUID = 2811363285174806464L;
 
+    public SerialNoAlreadyExistsException(UUID productId, String serialNo) {
+        super("PROD-ERR-001", String.format("SerialNo %s already exists for product with id %s", serialNo, productId));
+    }
 }

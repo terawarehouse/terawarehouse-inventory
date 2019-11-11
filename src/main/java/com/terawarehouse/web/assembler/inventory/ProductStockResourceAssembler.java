@@ -15,26 +15,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package com.terawarehouse.data.repository.inventory;
+package com.terawarehouse.web.assembler.inventory;
 
-import java.util.Optional;
-import java.util.UUID;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.server.RepresentationModelAssembler;
+import org.springframework.stereotype.Component;
 
-import javax.validation.constraints.NotNull;
-
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-
-import com.terawarehouse.data.entity.inventory.ProductStock;
+import com.broodcamp.web.assembler.AbstractResourceAssembler;
+import com.terawarehouse.business.domain.inventory.ProductStockDto;
 
 /**
  * @author Edward P. Legaspi | czetsuya@gmail.com
+ * 
+ * @since
+ * @version
  */
-@Repository
-public interface ProductStockRepository extends JpaRepository<ProductStock, UUID> {
+@Component
+public class ProductStockResourceAssembler extends AbstractResourceAssembler<ProductStockDto>
+        implements RepresentationModelAssembler<ProductStockDto, EntityModel<ProductStockDto>> {
 
-    Optional<ProductStock> findByProductIdAndWarrantyCardNo(@NotNull UUID productId, @NotNull String warrantyCardNo);
+    @Override
+    public EntityModel<ProductStockDto> toModel(ProductStockDto entity) {
 
-    Optional<ProductStock> findByProductIdAndSerialNo(@NotNull UUID productId, @NotNull String serialNo);
-
+        return new EntityModel<>(entity);
+    }
 }

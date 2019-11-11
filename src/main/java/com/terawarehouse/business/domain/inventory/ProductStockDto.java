@@ -48,4 +48,6 @@ public class ProductStockDto extends BaseEntityDto {
     private String serialNo;
 
     private String warrantyCardNo;
+
+    private String errMessage;
 }

@@ -17,14 +17,30 @@
  */
 package com.terawarehouse.business.exception;
 
+import java.util.UUID;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
+import com.broodcamp.business.exception.BusinessNonRuntimeException;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
 /**
  * @author Edward P. Legaspi | czetsuya@gmail.com
  * 
  * @since 0.0.1
  * @version 0.0.1
  */
-public class WarrantyCardNoAlreadyExistsException extends RuntimeException {
+@Data
+@EqualsAndHashCode(callSuper = false)
+@ResponseStatus(value = HttpStatus.CONFLICT)
+public class WarrantyCardNoAlreadyExistsException extends BusinessNonRuntimeException {
 
     private static final long serialVersionUID = -4822079871532847754L;
-    
+
+    public WarrantyCardNoAlreadyExistsException(UUID productId, String warrantyCardNo) {
+        super("PROD-ERR-002", String.format("WarrantyCardNo %s already exists for product with id %s", warrantyCardNo, productId));
+    }
 }

@@ -88,9 +88,12 @@ public class ProductStock extends BaseEntity {
     @Transient
     private UUID previousTradingBranchId;
 
+    @Transient
+    private String errMessage;
+
     @PostLoad
     public void postLoad() {
         previousTradingBranchId = tradingBranchId;
     }
-    
+
 }
