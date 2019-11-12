@@ -22,16 +22,16 @@ import java.util.UUID;
 
 import javax.validation.constraints.NotNull;
 
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import com.broodcamp.data.repository.BaseRepository;
 import com.terawarehouse.data.entity.inventory.ProductStock;
 
 /**
  * @author Edward P. Legaspi | czetsuya@gmail.com
  */
 @Repository
-public interface ProductStockRepository extends JpaRepository<ProductStock, UUID> {
+public interface ProductStockRepository extends BaseRepository<ProductStock, UUID> {
 
     Optional<ProductStock> findByProductIdAndWarrantyCardNo(@NotNull UUID productId, @NotNull String warrantyCardNo);
 
