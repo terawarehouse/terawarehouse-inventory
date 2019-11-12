@@ -5,9 +5,3 @@ spring.cloud.config.fail-fast=true
 spring.profiles.active=development
 eureka.instance.prefer-ip-address=true
 eureka.instance.ip-address=192.168.1.100
-
-# app
-server.port=8002
-spring.main.banner-mode=off
-spring.main.allow-bean-definition-overriding=true
-management.endpoints.web.exposure.include=*
