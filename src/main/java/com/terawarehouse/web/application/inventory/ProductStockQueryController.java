@@ -25,6 +25,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.transaction.NotSupportedException;
+import javax.validation.constraints.NotNull;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.CollectionModel;
@@ -32,6 +33,7 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -39,6 +41,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.broodcamp.web.application.AbstractBaseController;
 import com.terawarehouse.business.domain.inventory.ProductStockDto;
 import com.terawarehouse.data.entity.inventory.ProductStock;
+import com.terawarehouse.data.repository.inventory.ProductStockRepository;
 
 /**
  * @author Edward P. Legaspi | czetsuya@gmail.com
@@ -55,6 +58,18 @@ public class ProductStockQueryController extends AbstractBaseController<ProductS
         Pageable pageable = initPage(page, size);
 
         List<EntityModel<ProductStockDto>> entities = repository.findAll(pageable).stream().map(e -> modelAssembler.toModel(genericMapper.toDto(e))).collect(Collectors.toList());
+
+        return new CollectionModel<>(entities, linkTo(methodOn(ProductStockQueryController.class).findAll(size, page)).withSelfRel());
+    }
+
+    @GetMapping(path = "/{productId}")
+    public CollectionModel<EntityModel<ProductStockDto>> findByProductId(@PathVariable @NotNull UUID productId, @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) Integer page) throws NotSupportedException {
+
+        Pageable pageable = initPage(page, size);
+
+        List<EntityModel<ProductStockDto>> entities = ((ProductStockRepository) repository).findAll(pageable).stream().map(e -> modelAssembler.toModel(genericMapper.toDto(e)))
+                .collect(Collectors.toList());
 
         return new CollectionModel<>(entities, linkTo(methodOn(ProductStockQueryController.class).findAll(size, page)).withSelfRel());
     }

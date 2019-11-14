@@ -17,6 +17,7 @@
  */
 package com.terawarehouse.data.repository.inventory;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -36,5 +37,7 @@ public interface ProductStockRepository extends BaseRepository<ProductStock, UUI
     Optional<ProductStock> findByProductIdAndWarrantyCardNo(@NotNull UUID productId, @NotNull String warrantyCardNo);
 
     Optional<ProductStock> findByProductIdAndSerialNo(@NotNull UUID productId, @NotNull String serialNo);
+
+    List<ProductStock> findByProductId(@NotNull UUID productId);
 
 }
