@@ -43,12 +43,15 @@ import com.terawarehouse.business.domain.inventory.ProductStockDto;
 import com.terawarehouse.data.entity.inventory.ProductStock;
 import com.terawarehouse.data.repository.inventory.ProductStockRepository;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * @author Edward P. Legaspi | czetsuya@gmail.com
  */
 @RestController
 @RequestMapping(path = "/stocks", produces = MediaType.APPLICATION_JSON_VALUE)
 @Validated
+@Slf4j
 public class ProductStockQueryController extends AbstractBaseController<ProductStock, ProductStockDto, UUID> {
 
     @GetMapping
@@ -65,6 +68,8 @@ public class ProductStockQueryController extends AbstractBaseController<ProductS
     @GetMapping(path = "/{productId}")
     public CollectionModel<EntityModel<ProductStockDto>> findByProductId(@PathVariable @NotNull UUID productId, @RequestParam(required = false) Integer size,
             @RequestParam(required = false) Integer page) throws NotSupportedException {
+
+        log.debug("GET /stocks producId={}", productId);
 
         Pageable pageable = initPage(page, size);
 

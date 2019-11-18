@@ -40,12 +40,15 @@ import com.terawarehouse.business.service.inventory.ProductStockCommandService;
 import com.terawarehouse.data.entity.inventory.ProductStock;
 import com.terawarehouse.web.assembler.inventory.ProductStockResourceAssembler;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * @author Edward P. Legaspi | czetsuya@gmail.com
  */
 @RestController
 @RequestMapping(path = "/stocks", produces = MediaType.APPLICATION_JSON_VALUE)
 @Validated
+@Slf4j
 public class ProductStockCommandController {
 
     @Autowired
@@ -59,6 +62,8 @@ public class ProductStockCommandController {
 
     @PostMapping
     public ResponseEntity<CollectionModel<EntityModel<ProductStockDto>>> restock(@RequestBody ProductStockAddCommandDto productStockAddCommand) {
+
+        log.debug("POST /stocks {}", productStockAddCommand);
 
         List<ProductStock> newProductStocks = genericMapper.toModel(productStockAddCommand.getProductStocks());
 
