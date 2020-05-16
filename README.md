@@ -11,6 +11,15 @@ Is a microservice that is a part of the Catalog and Sellout Management System.
  - It follows the CQRS architecture.
  - It is powered by and use Spring Cloud to fetch the configuration from a remote server and join a client server registration.
 
+## Dockerized
+
+```
+docker build -t czetsuya/terawarehouse-inventory .
+docker run -d -p 8761:8761 czetsuya/terawarehouse-inventory
+```
+
+Inventory should be accessible at http://localhost:8002
+
 ## Repositories
 
  - https://github.com/terawarehouse
