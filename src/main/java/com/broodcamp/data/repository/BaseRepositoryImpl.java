@@ -59,7 +59,7 @@ public class BaseRepositoryImpl<T extends BaseEntity, ID extends Serializable> e
     @Override
     public <S extends T> S save(S entity) {
 
-        if (entity instanceof AuditableEntity) {
+        if (AuditableEntity.class.isAssignableFrom(entity.getClass())) {
             ((AuditableEntity) entity).updateAudit(currentUser.getName());
         }
 
